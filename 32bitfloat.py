@@ -2,7 +2,7 @@ from microbit import *
 
 cursor_pos = 0
 page = 1
-BUTTON_HOLD = 300
+BUTTON_HOLD = 2000
 
 
 # For Page 1
@@ -98,18 +98,28 @@ def binary_str_to_float(binary_string):
 
 
 while True:
+    curtime = running_time()
     cursor_pos = blink_cursor(cursor_pos)
-    if button_b.is_pressed() and int(cursor_pos) < 24:
+    pressed_time = 0
+    while button_b.is_pressed():
+        pressed_time = running_time() - curtime
+    if int(cursor_pos) < 24 and pressed_time < BUTTON_HOLD and pressed_time > 0:
         page = page_1(binary_string, page)
         cursor_pos += 1
-    elif button_b.is_pressed() and int(cursor_pos) < 31:
+    elif int(cursor_pos) < 31 and pressed_time < BUTTON_HOLD and pressed_time > 0:
         page = page_2(binary_string, page)
         cursor_pos += 1
-    elif button_b.is_pressed() and int(cursor_pos) > 30:
+    elif int(cursor_pos) > 30 and pressed_time < BUTTON_HOLD and pressed_time > 0:
         display.clear()
         page = 2
         cursor_pos = 0
         page_1(binary_string, page)
+    elif pressed_time > BUTTON_HOLD:
+        display.scroll("Menu")
+        if page == 1:
+            page = page_1(binary_string, page)
+        else:
+            page = page_2(binary_string, page)
     if button_a.is_pressed():
         if binary_string[cursor_pos] == '0':
             binary_string = binary_string[:cursor_pos] + '1' + binary_string[cursor_pos + 1:]
