@@ -2,6 +2,7 @@ from microbit import *
 
 cursor_pos = 0
 page = 1
+BUTTON_HOLD = 300
 
 
 # For Page 1
@@ -69,6 +70,33 @@ def blink_cursor(cursor_pos):
     return cursor_pos
 
 
+def binary_str_to_float(binary_string):
+    sign = int(binary_string[0])
+    exponent = 0
+    mantissa = 0
+    counter = 0
+
+    for hold in range(31, 7, -1):
+        if binary_string[hold] == 1:
+            mantissa = mantissa + (2 ** counter)
+        counter += 1
+    counter = 0
+    if binary_string[1] == 1:
+        for hold in range(8, 2, -1):
+            if binary_string[hold] == 0:
+                exponent = exponent + (2 ** counter)
+            counter += 1
+    else:
+        for hold in range(8, 2, -1):
+            if binary_string[hold] == 1:
+                exponent = exponent + (2 ** (-1 * counter))
+            counter += 1
+    if sign >= 0:
+        return mantissa ** exponent
+    else:
+        return -1 * (mantissa ** exponent)
+
+
 while True:
     cursor_pos = blink_cursor(cursor_pos)
     if button_b.is_pressed() and int(cursor_pos) < 24:
@@ -82,9 +110,15 @@ while True:
         page = 2
         cursor_pos = 0
         page_1(binary_string, page)
-    elif button_a.is_pressed():
+    if button_a.is_pressed():
         if binary_string[cursor_pos] == '0':
             binary_string = binary_string[:cursor_pos] + '1' + binary_string[cursor_pos + 1:]
         else:
             binary_string = binary_string[:cursor_pos] + '0' + binary_string[cursor_pos + 1:]
+    elif pin0.is_touched():
+        display.scroll(binary_str_to_float(binary_string))
+        if page == 1:
+            page = page_1(binary_string, page)
+        else:
+            page = page_2(binary_string, page)
 
