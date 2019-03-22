@@ -3,6 +3,7 @@ from microbit import *
 cursor_pos = 0
 page = 1
 BUTTON_HOLD = 2000
+binary_string = '01111111011111111111111111111111'
 
 
 # For Page 1
@@ -45,11 +46,10 @@ def page_2(binary_string, page):
     return page
 
 
-binary_string = '01111111011111111111111111111111'
-page_1(binary_string, page)
-
-
 def blink_cursor(cursor_pos):
+    sleep_delay = 200
+    curtime = int(running_time())
+
     if int(cursor_pos) < 25:
         x_axis = cursor_pos % 5
         y_axis = cursor_pos // 5
@@ -60,13 +60,14 @@ def blink_cursor(cursor_pos):
     else:
         x_axis = cursor_pos % 5
         y_axis = (cursor_pos // 5) - 5
-
-    if int(display.get_pixel(x_axis, y_axis)) == 0:
-        display.set_pixel(x_axis, y_axis, 9)
-        sleep(200)
-    else:
-        display.set_pixel(x_axis, y_axis, 0)
-        sleep(200)
+    while int(running_time()) < (curtime + sleep_delay):
+        if int(display.get_pixel(x_axis, y_axis)) == 0 and int(running_time()) < (curtime + 5):
+            display.set_pixel(x_axis, y_axis, 9)
+        elif int(running_time()) < (curtime + 5):
+            display.set_pixel(x_axis, y_axis, 0)
+        sleep(5)
+        if button_b.is_pressed():
+            return cursor_pos
     return cursor_pos
 
 
@@ -97,6 +98,7 @@ def binary_str_to_float(binary_string):
         return -1 * (mantissa ** exponent)
 
 
+page_1(binary_string, page)
 while True:
     curtime = running_time()
     cursor_pos = blink_cursor(cursor_pos)
