@@ -98,7 +98,14 @@ def binstring_to_decimal(binstr):
 
 
 def convert_value(binary_string, position):
-    display.scroll('Unimplemented...')
+    if position == 0:
+        display.scroll(int(binary_string, 2))
+    elif position == 1:
+        display.scroll('Signed Integer')
+    elif position == 2:
+        display.scroll(binstring_to_decimal(binary_string))
+    else:
+        display.scroll('String of 4 ASCII Characters')
 
 
 def menu(binary_string, BUTTON_HOLD):
@@ -110,14 +117,17 @@ def menu(binary_string, BUTTON_HOLD):
         pressed_time = 0
         while button_b.is_pressed():
             pressed_time = running_time() - curtime
-        if button_b.is_pressed() and pressed_time < BUTTON_HOLD and BUTTON_HOLD > 0:
-            convert_value(binary_string, options[position])
+        if 0 < pressed_time < BUTTON_HOLD:
+            sleep(100)
+            convert_value(binary_string, position)
         elif pressed_time > BUTTON_HOLD:
             break
+        pressed_time = 0
         while button_a.is_pressed():
             pressed_time = running_time() - curtime
-        if button_a.is_pressed() and pressed_time < BUTTON_HOLD and BUTTON_HOLD > 0:
-            if position < 4:
+        if 0 < pressed_time < BUTTON_HOLD:
+            sleep(150)
+            if position < 3:
                 position += 1
             else:
                 position = 0
