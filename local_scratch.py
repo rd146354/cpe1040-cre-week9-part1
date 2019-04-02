@@ -1,30 +1,42 @@
-def binary_str_to_float(binary_string):
-    sign = int(binary_string[0])
-    exponent = 0
-    mantissa = 0
-    counter = 0
+# binstr = '01111111111111111111111111111111'
+binstr = '11111111100000000000000000000000'
+mantissa = 0.0
+bias = 127
 
-    for hold in range(31, 7, -1):
-        if int(binary_string[hold]) == 1:
-            mantissa = mantissa + (2 ** counter)
-        counter += 1
-    counter = 0
-    if int(binary_string[1]) == 1:
-        for hold in range(8, 2, -1):
-            if int(binary_string[hold]) == 1:
-                exponent = exponent + (2 ** counter)
-            print(exponent)
-            counter += 1
+def binstring_to_decimal(binstr):
+    if binstr[0] == '1':
+        sign = -1
     else:
-        for hold in range(8, 2, -1):
-            if int(binary_string[hold]) == 1:
-                exponent = exponent + (2 ** (-1 * counter))
-            counter += 1
-    if sign >= 0:
-        return mantissa ** exponent
+        sign = 1
+
+    for bit in range(1, 8):
+        if binstr[bit] == '0':
+            break
+        else:
+            for bit in range(9, 32):
+                if binstr[bit] == '1':
+                    float_out = 'NaN'
+                else:
+                    float_out = 'Infinity'
+            float_out = str(sign) + "*" + float_out
+            return float_out
+
+    exponent = int(binstr[2:9], 2)
+    if binstr[1] == '0':
+        exponent = exponent - bias
     else:
-        return -1 * (mantissa ** exponent)
+        exponent += 1
 
-binary_string = '01111111011111111111111111111111'
+    for bit in range(31, 9, -1):
+        if binstr[bit] == '1':
+            break
 
-print(binary_str_to_float(binary_string))
+    mantissa_string = binstr[9:bit+1]
+    for bit in range(0, len(mantissa_string)):
+        if mantissa_string[bit] == '1':
+            mantissa = mantissa + (2 ** (-1 * (bit+1)))
+    float_out = (sign*2**exponent*(1+mantissa))
+    return float_out
+
+
+print(binstring_to_decimal(binstr))

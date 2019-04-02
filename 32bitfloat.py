@@ -66,36 +66,61 @@ def blink_cursor(cursor_pos):
         elif int(running_time()) < (curtime + 5):
             display.set_pixel(x_axis, y_axis, 0)
         sleep(5)
-        if button_b.is_pressed():
+        if button_a.is_pressed() or button_b.is_pressed():
             return cursor_pos
     return cursor_pos
 
 
-def binary_str_to_float(binary_string):
-    sign = int(binary_string[0])
-    exponent = 0
-    mantissa = 0
-    counter = 0
+def binstring_to_decimal(binstr):
+    mantissa = 0.0
+    bias = 127
+    if binstr[0] == '1':
+        sign = -1
+    else:
+        sign = 1
 
-    for hold in range(31, 7, -1):
-        if binary_string[hold] == 1:
-            mantissa = mantissa + (2 ** counter)
-        counter += 1
-    counter = 0
-    if binary_string[1] == 1:
-        for hold in range(8, 2, -1):
-            if binary_string[hold] == 0:
-                exponent = exponent + (2 ** counter)
-            counter += 1
+    exponent = int(binstr[2:9], 2)
+    if binstr[1] == '0':
+        exponent = exponent - bias
     else:
-        for hold in range(8, 2, -1):
-            if binary_string[hold] == 1:
-                exponent = exponent + (2 ** (-1 * counter))
-            counter += 1
-    if sign >= 0:
-        return mantissa ** exponent
-    else:
-        return -1 * (mantissa ** exponent)
+        exponent += 1
+
+    for bit in range(31, 9, -1):
+        if binstr[bit] == '1':
+            break
+
+    mantissa_string = binstr[9:bit+1]
+    for bit in range(0, len(mantissa_string)):
+        if mantissa_string[bit] == '1':
+            mantissa = mantissa + (2 ** (-1 * (bit+1)))
+    float_out = (sign*2**exponent*(1+mantissa))
+    return float_out
+
+
+def convert_value(binary_string, position):
+    display.scroll('Unimplemented...')
+
+
+def menu(binary_string, BUTTON_HOLD):
+    options = ['U', 'I', 'F', 'C']
+    position = int(0)
+    while True:
+        display.show(str(options[position]))
+        curtime = running_time()
+        pressed_time = 0
+        while button_b.is_pressed():
+            pressed_time = running_time() - curtime
+        if button_b.is_pressed() and pressed_time < BUTTON_HOLD and BUTTON_HOLD > 0:
+            convert_value(binary_string, options[position])
+        elif pressed_time > BUTTON_HOLD:
+            break
+        while button_a.is_pressed():
+            pressed_time = running_time() - curtime
+        if button_a.is_pressed() and pressed_time < BUTTON_HOLD and BUTTON_HOLD > 0:
+            if position < 4:
+                position += 1
+            else:
+                position = 0
 
 
 page_1(binary_string, page)
@@ -117,7 +142,7 @@ while True:
         cursor_pos = 0
         page_1(binary_string, page)
     elif pressed_time > BUTTON_HOLD:
-        display.scroll("Menu")
+        menu(binary_string, BUTTON_HOLD)
         if page == 1:
             page = page_1(binary_string, page)
         else:
@@ -127,10 +152,4 @@ while True:
             binary_string = binary_string[:cursor_pos] + '1' + binary_string[cursor_pos + 1:]
         else:
             binary_string = binary_string[:cursor_pos] + '0' + binary_string[cursor_pos + 1:]
-    elif pin0.is_touched():
-        display.scroll(binary_str_to_float(binary_string))
-        if page == 1:
-            page = page_1(binary_string, page)
-        else:
-            page = page_2(binary_string, page)
-
+        sleep(300)
