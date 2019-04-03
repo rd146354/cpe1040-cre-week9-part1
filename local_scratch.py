@@ -1,5 +1,5 @@
 # binstr = '01111111111111111111111111111111'
-binstr = '11111111100000000000000000000000'
+binstr = '11111111111111111111111111110000'
 mantissa = 0.0
 bias = 127
 
@@ -39,4 +39,10 @@ def binstring_to_decimal(binstr):
     return float_out
 
 
-print(binstring_to_decimal(binstr))
+def binstring_to_signed(binstr):
+    signed_int = int(binstr[1:], 2)
+    if binstr[0] == '1':
+        signed_int = signed_int * (-1)
+    print(signed_int)
+
+binstring_to_signed(binstr)

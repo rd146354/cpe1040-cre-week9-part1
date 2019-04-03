@@ -46,6 +46,7 @@ def page_2(binary_string, page):
     return page
 
 
+# Function changes cursor status
 def blink_cursor(cursor_pos):
     sleep_delay = 200
     curtime = int(running_time())
@@ -71,6 +72,7 @@ def blink_cursor(cursor_pos):
     return cursor_pos
 
 
+# Convert the binary string to float
 def binstring_to_decimal(binstr):
     mantissa = 0.0
     bias = 127
@@ -97,17 +99,27 @@ def binstring_to_decimal(binstr):
     return float_out
 
 
+# Caller for conversions
 def convert_value(binary_string, position):
     if position == 0:
         display.scroll(int(binary_string, 2))
     elif position == 1:
-        display.scroll('Signed Integer')
+        int_signed = int(binary_string[1:], 2)
+        if binary_string[0] == '1':
+            int_signed = int_signed * (-1)
+        display.scroll(int_signed)
     elif position == 2:
         display.scroll(binstring_to_decimal(binary_string))
     else:
+        characters = []
+        bitposless1 = 0
+        for bitpos in range(7, 39, 8):
+            characters.append(binary_string[bitposless1:bitpos])
+            bitposless1 = bitpos + 1
         display.scroll('String of 4 ASCII Characters')
 
 
+# Menu screen
 def menu(binary_string, BUTTON_HOLD):
     options = ['U', 'I', 'F', 'C']
     position = int(0)
@@ -133,20 +145,22 @@ def menu(binary_string, BUTTON_HOLD):
                 position = 0
 
 
+# Initialize the screen
 page_1(binary_string, page)
+# Main program loop
 while True:
     curtime = running_time()
     cursor_pos = blink_cursor(cursor_pos)
     pressed_time = 0
     while button_b.is_pressed():
         pressed_time = running_time() - curtime
-    if int(cursor_pos) < 24 and pressed_time < BUTTON_HOLD and pressed_time > 0:
+    if int(cursor_pos) < 24 and 0 < pressed_time < BUTTON_HOLD:
         page = page_1(binary_string, page)
         cursor_pos += 1
-    elif int(cursor_pos) < 31 and pressed_time < BUTTON_HOLD and pressed_time > 0:
+    elif int(cursor_pos) < 31 and 0 < pressed_time < BUTTON_HOLD:
         page = page_2(binary_string, page)
         cursor_pos += 1
-    elif int(cursor_pos) > 30 and pressed_time < BUTTON_HOLD and pressed_time > 0:
+    elif int(cursor_pos) > 30 and 0 < pressed_time < BUTTON_HOLD:
         display.clear()
         page = 2
         cursor_pos = 0
