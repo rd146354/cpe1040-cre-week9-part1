@@ -81,16 +81,11 @@ def binstring_to_decimal(binstr):
     else:
         sign = 1
 
-    exponent = int(binstr[2:9], 2)
-    if binstr[1] == '0':
-        exponent = exponent - bias
-    else:
-        exponent += 1
-
+    exponent = int(binstr[1:9], 2)
+    exponent -= bias
     for bit in range(31, 9, -1):
         if binstr[bit] == '1':
             break
-
     mantissa_string = binstr[9:bit+1]
     for bit in range(0, len(mantissa_string)):
         if mantissa_string[bit] == '1':
@@ -111,12 +106,11 @@ def convert_value(binary_string, position):
     elif position == 2:
         display.scroll(binstring_to_decimal(binary_string))
     else:
-        characters = []
-        bitposless1 = 0
-        for bitpos in range(7, 39, 8):
-            characters.append(binary_string[bitposless1:bitpos])
-            bitposless1 = bitpos + 1
-        display.scroll('String of 4 ASCII Characters')
+        asciistring = chr(int(binary_string[0:7], 2)) \
+                      + chr(int(binary_string[8:15], 2)) \
+                      + chr(int(binary_string[16:23], 2)) \
+                      + chr(int(binary_string[24:31], 2))
+        display.scroll(asciistring)
 
 
 # Menu screen
