@@ -161,6 +161,7 @@ while True:
         page_1(binary_string, page)
     elif pressed_time > BUTTON_HOLD:
         menu(binary_string, BUTTON_HOLD)
+        display.clear()
         if page == 1:
             page = page_1(binary_string, page)
         else:
